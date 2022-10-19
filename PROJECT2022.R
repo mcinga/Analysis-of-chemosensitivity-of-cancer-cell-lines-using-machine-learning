@@ -17,7 +17,7 @@ BRCA2<-df2%>%
                 DRUG_NAME, PATHWAY_NAME, LN_IC50,Z_SCORE)%>%
   select(-DATASET)
 
-#RETAIN ONLY THOSE THAT ARE NOT DUPLICATES IN THE DATA.
+#MERGE DATA RETAIN ONLY THOSE THAT ARE NOT DUPLICATES IN THE DATA.
 library(sqldf)
 BRCA<-sqldf("select * from BRCA1 union select * from BRCA2")
 unique(BRCA$CELL_LINE_NAME) #51 CELL LINES
@@ -54,8 +54,15 @@ drugs<-inner_join(drug1,drug2, by=c("DRUG_NAME","PATHWAY_NAME","TARGETS"))
 gdsc2<-gdsc%>%
   group_by(CELL_LINE_NAME,DRUG_NAME,PATHWAY_NAME,BIOACTIVITY,TARGETS)%>%
   slice_sample(n=1)
-#(2)ROWS WHERE THE CONTENT IS THE SAME EXCEPT FOR BIOACTIVITY,
+
+#(2)ROWS WHERE THE CELL LINE, IS TREATED BY THE SAME DRUG,AFFECTS THE SAME PATHWAY,
+#HAS THE SAME TARGET BUT THE BIOACTIVITY IS DIFFERENT.
 #I WILL CHOOSE THE SECOND ONE, AND OMIT THE FIRST ROW.
+library(dplyr)
+gdsc3<-gdsc2 %>%
+  group_by(CELL_LINE_NAME,DRUG_NAME,PATHWAY_NAME,TARGETS) %>%
+  slice(min(2, n())) %>%
+  ungroup
 
 #=======================================================================================================================================
 #WE ARE GOING TO READ THE ACHILLES-CRSIPR DATA.
@@ -72,7 +79,6 @@ crispr<-crispr%>%
 #crispr<-crispr%>%
 crispr<-crispr%>%
   select(-DepMap_ID)
-
 
 #CLEANING MY VARIABLE NAMES IN THE NEW CRISPR TABLE
 #I WILL START BY RESHAPING THE DATA FROM WIDE TO LONG FORMAT.
