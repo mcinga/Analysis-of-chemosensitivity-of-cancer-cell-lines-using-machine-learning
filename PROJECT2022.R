@@ -93,7 +93,35 @@ crispr5<-data_to_wide(data=crispr4,id_cols =NULL, values_from ="EXP_VAL",names_f
 write.csv(crispr5, "CRISPR_5.csv")
 
 #================================================================================================================================================================
+#GENE DEPENDENCY DATASET IS HERE. 
+#PERFORM FEATURE SELECTION ON THIS DATA
+#WILL DO THAT ON MATLAB.  
 
+CRISPR5<-read_csv("CRISPR_5.csv")
+CRISPR5<-CRISPR5%>%
+  select(-1)
+sum(is.na(CRISPR5)) # 3391 missing values
+
+CRISPR_6<-CRISPR5
+is.na(CRISPR_6$CELL_LINE_NAME) # returns true, on index 77
+##removing the index 77 which has a missing value.
+CRISPR_7<-CRISPR_6%>%
+  slice(-c(77))
+## Remove columns and rows with more than 50% NA
+CRISPR_7<-CRISPR_7[which(rowMeans(!is.na(CRISPR_7)) > 0.5),
+                   which(colMeans(!is.na(CRISPR_7)) > 0.5)]
+#=================================================================================================================================================================
+library(caret)
+library(RANN)
+#IMPUTE THE MISSING VALUES. 
+#IMPUTING THE MISSING VALUES
+CRISP_IMP<-preProcess(as.data.frame(CRISPR_7), method = 'knnImpute', k=10)
+crispr_imp<-predict(CRISP_IMP,newdata = CRISPR_7)
+sum(is.na(crispr_imp)) 
+is.na(crispr_imp) #RETURNS NO MISSING VALUES. 
+
+crispr_imp_2<-crispr_imp
+#write.csv(crispr_imp_2, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\IMPUTED_CRISPR.csv",row.names = F)
 
 
 
