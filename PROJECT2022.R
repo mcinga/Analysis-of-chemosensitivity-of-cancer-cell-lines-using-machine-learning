@@ -47,7 +47,7 @@ drug2<-drug2%>%
 #USE INNER JOIN BECAUSE IT RETURNS ONLY ROWS FOUND IN BOTH DATASETS
 drugs<-inner_join(drug1,drug2, by=c("DRUG_NAME","PATHWAY_NAME","TARGETS"))
 
-#===============================================================================
+#=======================================================================================================================================
 #WE ARE GOING TO READ THE ACHILLES-CRSIPR DATA.
 crispr<-read_csv("CRISPR_gene_effect.csv")
 sample_inf<-read_csv("sample_info.csv")
@@ -76,12 +76,23 @@ crispr2<-crispr2%>%
 library(stringr)
 crispr3<-crispr2%>%
   mutate(GENES = str_remove(GENES, "\\(.*"))
+write(crispr3,"CRISPR_3.csv") #need to find the script that i used to generate this.
 
 #LETS NOW TRY TO CHANGE THE FORMAT FROM LONG TO WIDE. 
 #RUN ON THE CLUSTER. CHECK RESHAPE.R
 #TAKES A LOT OF COMPUTATIONAL TIME, HAVE TO RUN IT ON THE CLUSTER.
 library(datawizard)
 crispr4<-data_to_wide(data = crispr3,id_cols ="CELL_LINE_NAME", values_from = "EXP_VAL", names_from = "GENES")
+#ON THE CLUSTER THIS THE CODE USED.
+library(tidyverse)
+crispr4<-read_csv("CRISPR_3.csv")
+crispr4<-crispr4%>%select(-1)
+
+library(datawizard)
+crispr5<-data_to_wide(data=crispr4,id_cols =NULL, values_from ="EXP_VAL",names_from ="GENES")
+write.csv(crispr5, "CRISPR_5.csv")
+
+#================================================================================================================================================================
 
 
 
