@@ -64,6 +64,8 @@ gdsc3<-gdsc2 %>%
   slice(min(2, n())) %>%
   ungroup
 
+#write.csv(gdsc3, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CLEAN.csv",row.names = F)
+
 #=======================================================================================================================================
 #WE ARE GOING TO READ THE ACHILLES-CRSIPR DATA.
 crispr<-read_csv("CRISPR_gene_effect.csv")
@@ -139,7 +141,11 @@ is.na(crispr_imp) #RETURNS NO MISSING VALUES.
 crispr_imp_2<-crispr_imp
 #write.csv(crispr_imp_2, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\IMPUTED_CRISPR.csv",row.names = F)
 
+#===============================================================================================================================================================
+#PERFORM FEATURE SELECTION ON THIS DATA
+#WILL DO THAT ON MATLAB. 
 
-
+#===============================================================================================================================================================
+#MERGE THE GDSC AND THE FEATURE SELECTION RESULTS SO THAT I CAN TRAIN THE MODELS.
 
 
