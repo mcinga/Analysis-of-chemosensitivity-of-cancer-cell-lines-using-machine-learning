@@ -27,7 +27,8 @@ unique(BRCA$CELL_LINE_NAME) #51 CELL LINES
 BRCA<-BRCA%>%
   mutate(BIOACTIVITY = case_when(Z_SCORE <= -0.5 ~ "SENSITIVE",
                                  Z_SCORE >= 0.5 ~ "RESISTANT",
-                                 T ~ "INTERMEDIATE"))
+                                 T ~ "INTERMEDIATE"))%>%
+  select(-c(4,5))
 
 
 #LOAD THE GDSC DRUG INFORMATION
