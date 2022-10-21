@@ -147,7 +147,7 @@ crispr_imp_2<-crispr_imp
 #write.csv(crispr_imp_2, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\IMPUTED_CRISPR.csv",row.names = F)
 #===============================================================================================================================================================
 #FILTER OUT GENES THAT HAVE A HIGH CORRELATION TO EACH OTHER.
-#RUN IT N THE CLUSTER BECASUE IT TAKES A LOT OF COMPUTATIONAL TIME.
+#RUN IT N THE CLUSTER BECASUE IT TAKES A LOT OF COMPUTATIONAL TIME. USED the CORRDATA script.
 library(caret)
 library(tidyverse)
 crispr_imp_3<-read_csv("IMPUTED_CRISPR.csv")
