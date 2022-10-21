@@ -173,7 +173,13 @@ class(crispr_imp_4)
 
 GDSC_CRISPR<-merge(x=GDSC,y=crispr_imp_4,by="CELL_LINE_NAME")
 str(GDSC_CRISPR)
+
+library(datawizard)
+GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
+write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CRISPR.csv",row.names = F)
+
 #===============================================================================================================================================================
+#PERFORM FEATURE SELECTION HERE.
 
 
 
