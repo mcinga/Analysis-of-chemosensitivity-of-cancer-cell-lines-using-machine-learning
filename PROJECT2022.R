@@ -64,7 +64,12 @@ gdsc3<-gdsc2 %>%
   slice(min(2, n())) %>%
   ungroup
 
-#write.csv(gdsc3, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CLEAN.csv",row.names = F)
+#REORDERING THE COLUMNS
+library(datawizard)
+GDSC<-data_relocate(gdsc3, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
+GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "PATHWAY_NAME", before = "DRUG_NAME")
+
+#write.csv(GDSC, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CLEAN.csv",row.names = F)
 
 #=======================================================================================================================================
 #WE ARE GOING TO READ THE ACHILLES-CRSIPR DATA.
@@ -140,12 +145,34 @@ is.na(crispr_imp) #RETURNS NO MISSING VALUES.
 
 crispr_imp_2<-crispr_imp
 #write.csv(crispr_imp_2, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\IMPUTED_CRISPR.csv",row.names = F)
+#===============================================================================================================================================================
+#FILTER OUT GENES THAT HAVE A HIGH CORRELATION TO EACH OTHER.
+#RUN IT N THE CLUSTER BECASUE IT TAKES A LOT OF COMPUTATIONAL TIME.
+library(caret)
+library(tidyverse)
+crispr_imp_3<-read_csv("IMPUTED_CRISPR.csv")
+crispr_imp_3<-crispr_imp_3%>%
+  column_to_rownames(var = "CELL_LINE_NAME")
+#REMOVING HIGHLY CORRELATED VARIABLES (GENES)
+#USE A THRESHOLD WE WANT TO DEEM CORRELATION AS TOO HIGH. CUT OFF BEING 0.8.
+nonColinearData<-crispr_imp_3[, -findCorrelation(cor(crispr_imp_3), cutoff = .8)]
+#write.csv(nonColinearData, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\COL_DATA.csv",row.names = F)
 
 #===============================================================================================================================================================
+#MERGING THE GDSC AND THE ACHILLES-CRISPR DATASETS
 #PERFORM FEATURE SELECTION ON THIS DATA
 #WILL DO THAT ON MATLAB. 
+gdsc<-read_csv("GDSC_CLEAN.csv")
+crispr_imp_4<-read_csv("COL_DATA.csv") # 70 GENES REMOVED
 
+crispr_imp_4<-crispr_imp_4%>%
+  rename(CELL_LINE_NAME = ...1)
+str(crispr_imp_4)
+class(crispr_imp_4)
+
+GDSC_CRISPR<-merge(x=gdsc,y=crispr_imp_4,by="CELL_LINE_NAME")
+str(GDSC_CRISPR)
 #===============================================================================================================================================================
-#MERGE THE GDSC AND THE FEATURE SELECTION RESULTS SO THAT I CAN TRAIN THE MODELS.
+
 
 
