@@ -162,7 +162,7 @@ nonColinearData<-crispr_imp_3[, -findCorrelation(cor(crispr_imp_3), cutoff = .8)
 #MERGING THE GDSC AND THE ACHILLES-CRISPR DATASETS
 #PERFORM FEATURE SELECTION ON THIS DATA
 #WILL DO THAT ON MATLAB. 
-gdsc<-read_csv("GDSC_CLEAN.csv")
+GDSC<-read_csv("GDSC_CLEAN.csv")
 crispr_imp_4<-read_csv("COL_DATA.csv") # 70 GENES REMOVED
 
 crispr_imp_4<-crispr_imp_4%>%
@@ -170,7 +170,7 @@ crispr_imp_4<-crispr_imp_4%>%
 str(crispr_imp_4)
 class(crispr_imp_4)
 
-GDSC_CRISPR<-merge(x=gdsc,y=crispr_imp_4,by="CELL_LINE_NAME")
+GDSC_CRISPR<-merge(x=GDSC,y=crispr_imp_4,by="CELL_LINE_NAME")
 str(GDSC_CRISPR)
 #===============================================================================================================================================================
 
