@@ -72,7 +72,7 @@ GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "PATHWAY_NAME", before = "DRUG_
 
 #write.csv(GDSC, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CLEAN.csv",row.names = F)
 
-#=======================================================================================================================================
+#=================================================================================================================================================================
 #WE ARE GOING TO READ THE ACHILLES-CRSIPR DATA.
 crispr<-read_csv("CRISPR_gene_effect.csv")
 sample_inf<-read_csv("sample_info.csv")
@@ -201,5 +201,30 @@ write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC
 #numoffeatures=500
 #data=horzcat(features(:,1),features(:,idx(1:numoffeaturess))); 
 #writetable(data,"TFEATURES.xlsx")
+
+#================================================================================================================================================================
+#MERGING MY TOPFEATUES etc
+GDSC_CRISPR<-read_csv("GDSC_CRISPR.csv")
+GDSC_CRISPR1<-GDSC_CRISPR%>%
+  select(c(1:5))
+TF<-read_csv("TFeatures.csv")
+
+GDSC_CRISPR2<-merge(x=GDSC_CRISPR1,y=TF,by="BIOACTIVITY")
+
+#REORDERING THE COLUMNS
+library(datawizard)
+GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
+write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CRISPR.csv",row.names = F)
+
+#=================================================================================================================================================================
+
+features<-read_csv("TOPFEATURES.csv")
+#splitting the data into input and output
+sum(is.na(features))
+library(caret)
+set.seed(123)
+inTraining <- createDataPartition(features$BIOACTIVITY, p = .70, list = FALSE)
+training <- features[ inTraining,]
+testing  <- features[-inTraining,]
 
 
