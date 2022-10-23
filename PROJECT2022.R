@@ -179,7 +179,27 @@ GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "BIOACTIVITY", before = "CELL_L
 write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CRISPR.csv",row.names = F)
 
 #===============================================================================================================================================================
-#PERFORM FEATURE SELECTION HERE.
+#WE ARE GOING TO BE DOING FEATURE SELECTION HERE TO REDUCE THE SIZE OF OUR DATASET.
+# AND WE WILL CHOOSE THE TOP 500 FEATURES TO TRAIN OUR MODEL.
+# WE WILL PERFORM THIS FEATURE SELECTIN USING MATLAB ON THE UCT CLUSTER.
+#LOAD MATLAB ON R, IS ANOTHER OPTION USING :
+#system('matlab -nodisplay -r "a=2; b=1; display(a+b); exit"').
 
+# Select the top 500 predictors
+# reading the data
+#features=readtable("GDSC_CRISPR.csv");
+#features(1:10,1:10);
+ 
+#features(:,1)=[];
+#features(1:10,1:10) 
+#Feature selection will use the MRMR alogorithm;
+#[idx,scores]=fscmrmr(features,"BIOACTIVITY");
+
+#Selecting the most important features and their columns.
+#I Want to get the top 500 features (predictors) that I will use to train the
+#idx(1:500)
+#numoffeatures=500
+#data=horzcat(features(:,1),features(:,idx(1:numoffeaturess))); 
+#writetable(data,"TFEATURES.xlsx")
 
 
