@@ -217,14 +217,25 @@ GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "BIOACTIVITY", before = "CELL_L
 write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CRISPR.csv",row.names = F)
 
 #=================================================================================================================================================================
+#WILL MERGE THE TOP FEATURES WITH 
+#WILL USE  MATLAB FOR THIS.
+#GDSC_CRISPR=readtable("GDSC_CRISPR.csv")
+#GDSC_CRISPR(1:10,1:7)
+#ds5=GDSC_CRISPR(:,1:5)
+#TF=readtable("TFeatures.csv")
+#TF(:,1)=[]
+#TF(1:10,1:8)
+#DATA=horzcat(ds5,TF)
+#writetable(DATA,"GD_TRAIN.csv")
 
-features<-read_csv("TOPFEATURES.csv")
+#==================================================================================================================================================================
+DATA<-read_csv("GD_TRAIN.csv")
 #splitting the data into input and output
-sum(is.na(features))
+sum(is.na(DATA))
 library(caret)
 set.seed(123)
-inTraining <- createDataPartition(features$BIOACTIVITY, p = .70, list = FALSE)
+inTraining <- createDataPartition(DATA$BIOACTIVITY, p = .70, list = FALSE)
 training <- features[ inTraining,]
 testing  <- features[-inTraining,]
 
-
+#===================================================================================================================================================================
