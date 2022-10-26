@@ -229,7 +229,7 @@ write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC
 #writetable(DATA,"GD_TRAIN.csv")
 
 #==================================================================================================================================================================
-DATA<-read_csv("GD_TRAIN.csv")
+DATA<-read_csv("TOP_FEAT.csv")
 #splitting the data into input and output
 sum(is.na(DATA))
 library(caret)
