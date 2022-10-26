@@ -239,3 +239,64 @@ training <- features[ inTraining,]
 testing  <- features[-inTraining,]
 
 #===================================================================================================================================================================
+#TRAINING THE MODELS
+
+# Run algorithms using 10-fold cross validation
+control <- trainControl(method="cv", number=10)
+metric <- "Accuracy"
+#CHANGING THE CHARACTERS INTO FACTORS VARAIBLES
+training<- as.data.frame(unclass(training),                     
+                          stringsAsFactors = TRUE)
+
+#CHANGING THE CHARACTERS INTO FACTORS VARAIBLES
+testing <- as.data.frame(unclass(testing),                     
+                         stringsAsFactors = TRUE)
+
+str(training)
+#KNN
+set.seed(123)
+fit.knn <- train(BIOACTIVITY~., data=training, method="knn", metric=metric, trControl=control)
+print(fit.knn)
+
+predictions <- predict(fit.knn, testing)
+confusionMatrix(predictions, testing$BIOACTIVITY)
+
+#SVM
+
+fit.svm <- train(BIOACTIVITY~., data=training, method="svmRadial", metric=metric, trControl=control)
+print(fit.svm)
+
+predictions <- predict(fit.svm, testing)
+confusionMatrix(predictions, testing$BIOACTIVITY)
+
+#RF
+fit.rf <- train(BIOACTIVITY~., data=training, method="rf", metric=metric, trControl=control)
+print(fit.rf)
+
+predictions <- predict(fit.rf, testing)
+confusionMatrix(predictions,testing$BIOACTIVITY)
+
+#GBM
+set.seed(123)
+fit.gbm<- train(BIOACTIVITY~., data=training, method="gbm", metric=metric, trControl=control)
+print(fit.rf)
+
+predictions <- predict(fit.gbm, testing)
+confusionMatrix(predictions,testing$BIOACTIVITY)
+
+#XGBM
+set.seed(123)
+fit.xgbm<- train(BIOACTIVITY~., data=training, method="xgbTree", metric=metric, trControl=control)
+print(fit.rf)
+
+predictions <- predict(fit.gbm, testing)
+confusionMatrix(predictions,testing$BIOACTIVITY)
+
+#adaBag
+#ada library
+set.seed(123)
+fit.ada<- train(BIOACTIVITY~., data=training, method="ada", metric=metric, trControl=control)
+print(fit.ada)
+
+predictions <- predict(fit.gbm, testing)
+confusionMatrix(predictions,testing$BIOACTIVITY)
