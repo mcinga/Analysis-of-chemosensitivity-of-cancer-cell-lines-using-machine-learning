@@ -215,6 +215,7 @@ sum(is.na(GD_TRAIN))
 library(xgboost)
 library(gbm)
 library(randomForest)
+library(kernlab) #for SVM
 library(caret)
 
 set.seed(123)
