@@ -180,59 +180,43 @@ write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC
 
 #===============================================================================================================================================================
 #WE ARE GOING TO BE DOING FEATURE SELECTION HERE TO REDUCE THE SIZE OF OUR DATASET.
-# AND WE WILL CHOOSE THE TOP 500 FEATURES TO TRAIN OUR MODEL.
+# AND WE WILL CHOOSE THE TOP 10 000 FEATURES TO TRAIN OUR MODEL.
 # WE WILL PERFORM THIS FEATURE SELECTIN USING MATLAB ON THE UCT CLUSTER.
 #LOAD MATLAB ON R, IS ANOTHER OPTION USING :
 #system('matlab -nodisplay -r "a=2; b=1; display(a+b); exit"').
 
-# Select the top 500 predictors
-# reading the data
+#%Select the top 10000 predictors
 #features=readtable("GDSC_CRISPR.csv");
 #features(1:10,1:10);
  
-#features(:,1)=[];
-#features(1:10,1:10) 
-#Feature selection will use the MRMR alogorithm;
+#%Feature selection will use the MRMR alogorithm;
 #[idx,scores]=fscmrmr(features,"BIOACTIVITY");
 
-#Selecting the most important features and their columns.
-#I Want to get the top 500 features (predictors) that I will use to train the
-#idx(1:500)
-#numoffeatures=500
-#data=horzcat(features(:,1),features(:,idx(1:numoffeaturess))); 
-#writetable(data,"TFEATURES.xlsx")
+#%Plotting the importance scores.
+#bar(sscores(idx(1:15)))
+#xlabel("Predictor rankings")
+#ylabel("Importance score")
+#title("Top 15 features)
 
-#================================================================================================================================================================
-#MERGING MY TOPFEATUES etc
-GDSC_CRISPR<-read_csv("GDSC_CRISPR.csv")
-GDSC_CRISPR1<-GDSC_CRISPR%>%
-  select(c(1:5))
-TF<-read_csv("TFeatures.csv")
-
-GDSC_CRISPR2<-merge(x=GDSC_CRISPR1,y=TF,by="BIOACTIVITY")
-
-#REORDERING THE COLUMNS
-library(datawizard)
-GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
-write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CRISPR.csv",row.names = F)
-
-#=================================================================================================================================================================
-#WILL MERGE THE TOP FEATURES WITH 
-#WILL USE  MATLAB FOR THIS.
-#GDSC_CRISPR=readtable("GDSC_CRISPR.csv")
-#GDSC_CRISPR(1:10,1:7)
-#ds5=GDSC_CRISPR(:,1:5)
-#TF=readtable("TFeatures.csv")
-#TF(:,1)=[]
-#TF(1:10,1:8)
-#DATA=horzcat(ds5,TF)
-#writetable(DATA,"GD_TRAIN.csv")
+#numoffeatures=10 000
+#data=features(:,idx(1:numoffeatures))
+#data(1;10,1:7)
+#data.BIOACTIVITY=[]
+#DATA=horzcat(features(:,1),data); 
+#writetable(DATA,"TOP_10000_FEATURES.xlsx")
 
 #==================================================================================================================================================================
-DATA<-read_csv("TOP_FEAT.csv")
-#splitting the data into input and output
-sum(is.na(DATA))
+GD_TRAIN<-read_csv("TOP_10000_FEATURES.csv")
+
+unique(GD_TRAIN$CELL_LINE_NAME)
+unique(GD_TRAIN$DRUG_NAME)
+sum(is.na(GD_TRAIN))
+
+library(xgboost)
+library(gbm)
+library(randomForest)
 library(caret)
+
 set.seed(123)
 inTraining <- createDataPartition(DATA$BIOACTIVITY, p = .70, list = FALSE)
 training <- features[ inTraining,]
@@ -242,7 +226,7 @@ testing  <- features[-inTraining,]
 #TRAINING THE MODELS
 
 # Run algorithms using 10-fold cross validation
-control <- trainControl(method="cv", number=10)
+control <- trainControl(method="repeatedcv", number=10, repeats=10)
 metric <- "Accuracy"
 #CHANGING THE CHARACTERS INTO FACTORS VARAIBLES
 training<- as.data.frame(unclass(training),                     
@@ -278,7 +262,7 @@ confusionMatrix(predictions,testing$BIOACTIVITY)
 
 #GBM
 set.seed(123)
-fit.gbm<- train(BIOACTIVITY~., data=training, method="gbm", metric=metric, trControl=control)
+fit.gbm<- train(BIOACTIVITY~., data=training, method="gbm", metric=metric, trControl=control, verbose=F)
 print(fit.rf)
 
 predictions <- predict(fit.gbm, testing)
@@ -289,14 +273,6 @@ set.seed(123)
 fit.xgbm<- train(BIOACTIVITY~., data=training, method="xgbTree", metric=metric, trControl=control)
 print(fit.rf)
 
-predictions <- predict(fit.gbm, testing)
+predictions <- predict(fit.xgbm, testing)
 confusionMatrix(predictions,testing$BIOACTIVITY)
 
-#adaBag
-#ada library
-set.seed(123)
-fit.ada<- train(BIOACTIVITY~., data=training, method="ada", metric=metric, trControl=control)
-print(fit.ada)
-
-predictions <- predict(fit.gbm, testing)
-confusionMatrix(predictions,testing$BIOACTIVITY)
