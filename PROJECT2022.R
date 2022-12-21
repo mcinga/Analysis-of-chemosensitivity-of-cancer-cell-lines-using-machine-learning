@@ -179,7 +179,7 @@ str(GDSC_CRISPR)
 
 library(datawizard)
 GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
-write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CRISPR.csv",row.names = F)
+write.csv(GDSC_CRISPR, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CRISPR2.csv",row.names = F)
 
 #===============================================================================================================================================================
 #WE ARE GOING TO BE DOING FEATURE SELECTION HERE TO REDUCE THE SIZE OF OUR DATASET.
@@ -247,7 +247,7 @@ fit.knn <- train(BIOACTIVITY~., data=training, method="knn", metric=metric, trCo
 print(fit.knn)
 
 predictions <- predict(fit.knn, testing)
-confusionMatrix(predictions, testing$BIOACTIVITY)
+confusionMatrix(predictions, testing$BIOACTIVITY, mode ="prec_recall")
 
 #SVM
 
@@ -255,28 +255,28 @@ fit.svm <- train(BIOACTIVITY~., data=training, method="svmRadial", metric=metric
 print(fit.svm)
 
 predictions <- predict(fit.svm, testing)
-confusionMatrix(predictions, testing$BIOACTIVITY)
+confusionMatrix(predictions, testing$BIOACTIVITY, mode ="prec_recall")
 
 #RF
 fit.rf <- train(BIOACTIVITY~., data=training, method="rf", metric=metric, trControl=control)
 print(fit.rf)
 
 predictions <- predict(fit.rf, testing)
-confusionMatrix(predictions,testing$BIOACTIVITY)
+confusionMatrix(predictions,testing$BIOACTIVITY, mode="prec_recall")
 
 #GBM
 set.seed(123)
 fit.gbm<- train(BIOACTIVITY~., data=training, method="gbm", metric=metric, trControl=control, verbose=F)
-print(fit.rf)
+print(fit.gbm)
 
 predictions <- predict(fit.gbm, testing)
-confusionMatrix(predictions,testing$BIOACTIVITY)
+confusionMatrix(predictions,testing$BIOACTIVITY, mode="prec_recall")
 
 #XGBM
 set.seed(123)
 fit.xgbm<- train(BIOACTIVITY~., data=training, method="xgbTree", metric=metric, trControl=control)
-print(fit.rf)
+print(fit.xgbm)
 
 predictions <- predict(fit.xgbm, testing)
-confusionMatrix(predictions,testing$BIOACTIVITY)
-
+confusionMatrix(predictions,testing$BIOACTIVITY, mode ="prec_recall")
+#I might actually plot the ROC/AUC. I will think about it.
