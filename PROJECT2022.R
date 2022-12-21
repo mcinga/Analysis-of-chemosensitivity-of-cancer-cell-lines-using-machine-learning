@@ -25,8 +25,8 @@ unique(BRCA$CELL_LINE_NAME) #51 CELL LINES
 #SEPERATING THE DRUGS ACCORDING TO SENSISTIVITY, 
 #USING THE Z_SCORE
 BRCA<-BRCA%>%
-  mutate(BIOACTIVITY = case_when(Z_SCORE <= -0.5 ~ "SENSITIVE",
-                                 Z_SCORE >= 0.5 ~ "RESISTANT",
+  mutate(BIOACTIVITY = case_when(Z_SCORE <= -0.3 ~ "SENSITIVE",
+                                 Z_SCORE >= 0.3 ~ "RESISTANT",
                                  T ~ "INTERMEDIATE"))%>%
   select(-c(4,5))
 
@@ -48,11 +48,14 @@ drug2<-drug2%>%
 #USE INNER JOIN BECAUSE IT RETURNS ONLY ROWS FOUND IN BOTH DATASETS
 drugs<-inner_join(drug1,drug2, by=c("DRUG_NAME","PATHWAY_NAME","TARGETS"))
 
+#REMOVE ALL THOSE THAT HAVE GOT AN INTERMEDIATE RESPONSE.
+gdsc2<-gdsc[gdsc$BIOACTIVITY !="INTERMEDIATE",]
+
 #IN THIS DATASET, I WANT TO REMOVE THE DUPLICATED ROWS.
 #(1) ALL THE ROWS WHERE ALL THE CONTENTS ARE THE SAME,
 #FROM CELL LINE  UP TO THE BIOACTIVITY, I WANT TO RANDOMMLY PICK ONE,
 #AND NOT JUST PICK THE FIRST ONE.
-gdsc2<-gdsc%>%
+gdsc3<-gdsc2%>%
   group_by(CELL_LINE_NAME,DRUG_NAME,PATHWAY_NAME,BIOACTIVITY,TARGETS)%>%
   slice_sample(n=1)
 
@@ -60,14 +63,14 @@ gdsc2<-gdsc%>%
 #HAS THE SAME TARGET BUT THE BIOACTIVITY IS DIFFERENT.
 #I WILL CHOOSE THE SECOND ONE, AND OMIT THE FIRST ROW.
 library(dplyr)
-gdsc3<-gdsc2 %>%
+gdsc4<-gdsc3 %>%
   group_by(CELL_LINE_NAME,DRUG_NAME,PATHWAY_NAME,TARGETS) %>%
   slice(min(2, n())) %>%
   ungroup
 
 #REORDERING THE COLUMNS
 library(datawizard)
-GDSC<-data_relocate(gdsc3, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
+GDSC<-data_relocate(gdsc4, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
 GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "PATHWAY_NAME", before = "DRUG_NAME")
 
 #write.csv(GDSC, "C:\\Users\\School EC\\Desktop\\MSc Stuff\\Datasets\\GDSC_CLEAN.csv",row.names = F)
