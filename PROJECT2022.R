@@ -22,6 +22,16 @@ library(sqldf)
 BRCA<-sqldf("select * from BRCA1 union select * from BRCA2")
 unique(BRCA$CELL_LINE_NAME) #51 CELL LINES
 
+
+#SEPERATING THE DRUGS ACCORDING TO SENSISTIVITY, 
+#USING THE Z_SCORE
+BRCA<-BRCA%>%
+  mutate(BIOACTIVITY = case_when(Z_SCORE <= -0.5 ~ "SENSITIVE",
+                                 Z_SCORE >= 0.5 ~ "RESISTANT",
+                                 T ~ "INTERMEDIATE"))%>%
+  select(-c(4,5))
+#I will need to explain the above and state that with more intermediate drug responses the model did not perform well at all.
+
 #SEPERATING THE DRUGS ACCORDING TO SENSISTIVITY, 
 #USING THE Z_SCORE
 BRCA<-BRCA%>%
