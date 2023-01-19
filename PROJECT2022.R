@@ -290,3 +290,63 @@ print(fit.xgbm)
 predictions <- predict(fit.xgbm, testing)
 confusionMatrix(predictions,testing$BIOACTIVITY, mode ="prec_recall")
 #I might actually plot the ROC/AUC. I will think about it.
+
+#===========================================================================================================================================
+#NOW TO PERFORM REGRESSION ANANLYSIS
+#SVM model
+library(e1071)
+library(caret)
+
+model_reg = svm(class~., data=train)
+print(model_reg)
+
+pred = predict(model_reg, test)
+
+x=1:length(test$class)
+plot(x, test$class, pch=18, col="red")
+lines(x, pred, lwd="1", col="blue")
+
+# accuracy check 
+#mse = MSE(test$medv, pred)
+mae = MAE(test$class, pred)
+rmse = RMSE(test$class, pred)
+r2 = R2(test$class, pred, form = "traditional")
+
+cat(" MAE:", mae,  "\n", 
+    "RMSE:", rmse, "\n", "R-squared:", r2)
+
+#=========================================================================================================================================================
+#RANDOM FOREST
+library(caret)
+rf<-train(class~.,data=train,method="rf")
+print(rf)
+
+#make predictions.
+pred<-predict(rf,test)
+#Accuracy check
+mae = MAE(test$class, pred)
+rmse = RMSE(test$class, pred)
+r2 = R2(test$class, pred, form = "traditional")
+
+cat(" MAE:", mae,  "\n", 
+    "RMSE:", rmse, "\n", "R-squared:", r2)
+#====================================================================================================================================================
+#GBM(2)
+gbm<-train(class~.,data=train,verbose=F)
+print(gbm)
+#prediction
+pred2 = predict(gbm, test)
+#accuracy 
+#mse = MSE(test$medv, pred2)
+mae = MAE(test$class, pred2)
+rmse = RMSE(test$class, pred2)
+r2 = R2(test$class, pred2, form = "traditional")
+
+cat(" MAE:", mae,  "\n", 
+    "RMSE:", rmse, "\n", "R-squared:", r2)
+#==================================================================================================================================================
+#XGBM
+#==================================================================================================================================================
+#KNN
+
+
