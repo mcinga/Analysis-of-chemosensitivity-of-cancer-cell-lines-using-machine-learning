@@ -238,6 +238,7 @@ testing  <- features[-inTraining,]
 
 #===================================================================================================================================================================
 #TRAINING THE MODELS
+#THESE WILL BE CLASSIFICATION MODELS
 
 # Run algorithms using 10-fold cross validation
 control <- trainControl(method="repeatedcv", number=10, repeats=10)
@@ -293,6 +294,11 @@ confusionMatrix(predictions,testing$BIOACTIVITY, mode ="prec_recall")
 
 #===========================================================================================================================================
 #NOW TO PERFORM REGRESSION ANANLYSIS
+#CATEGORICAL VALUES WILL BE CONVERTED TO NUMERICAL VALUES, BECAUSE SOME MODELS CANT PERFORM.
+
+#kNN MODEL
+
+#===========================================================================================================================================
 #SVM model
 library(e1071)
 library(caret)
@@ -331,7 +337,7 @@ r2 = R2(test$class, pred, form = "traditional")
 cat(" MAE:", mae,  "\n", 
     "RMSE:", rmse, "\n", "R-squared:", r2)
 #====================================================================================================================================================
-#GBM(2)
+#GBM
 gbm<-train(class~.,data=train,verbose=F)
 print(gbm)
 #prediction
@@ -346,7 +352,19 @@ cat(" MAE:", mae,  "\n",
     "RMSE:", rmse, "\n", "R-squared:", r2)
 #==================================================================================================================================================
 #XGBM
+xgbm<-train(BIOACTIVITY~.,data=train,verbose=F)
+print(gbm)
+#prediction
+pred2 = predict(xgbm, test)
+#accuracy 
+#mse = MSE(test$medv, pred2)
+mae = MAE(test$class, pred2)
+rmse = RMSE(test$class, pred2)
+r2 = R2(test$class, pred2, form = "traditional")
+
+cat(" MAE:", mae,  "\n", 
+    "RMSE:", rmse, "\n", "R-squared:", r2)
 #==================================================================================================================================================
-#KNN
+
 
 
