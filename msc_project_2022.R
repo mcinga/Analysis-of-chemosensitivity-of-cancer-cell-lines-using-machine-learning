@@ -141,31 +141,53 @@ str(GDSC_CRISPR)
 GDSC_CRISPR<-data_relocate(GDSC_CRISPR, select = "BIOACTIVITY", before = "CELL_LINE_NAME")
 #===============================================================================================================================================================
 #WE ARE GOING TO BE DOING FEATURE SELECTION HERE TO REDUCE THE SIZE OF OUR DATASET.
-# AND WE WILL CHOOSE THE TOP 10 000 FEATURES TO TRAIN OUR MODEL.
-# WE WILL PERFORM THIS FEATURE SELECTIN USING MATLAB ON THE UCT CLUSTER.
-#LOAD MATLAB ON R, IS ANOTHER OPTION USING :
-#system('matlab -nodisplay -r "a=2; b=1; display(a+b); exit"').
 
-#%Select the top 10000 predictors
-#features=readtable("GDSC_CRISPR.csv");
-#features(1:10,1:10);
- 
-#%Feature selection will use the MRMR alogorithm;
-#[idx,scores]=fscmrmr(features,"BIOACTIVITY");
+inTrain <- createDataPartition(GDSC_CRISPR$BIOACTIVITY,
+                               p = .7, list = F)
 
-#%Plotting the importance scores.
-#bar(sscores(idx(1:15)))
-#xlabel("Predictor rankings")
-#ylabel("Importance score")
-#title("Top 15 features)
+dim(GDSC_BIOACTIVITY)
 
-#numoffeatures=10 000
-#data=features(:,idx(1:numoffeatures))
-#data(1;10,1:7)
-#data.BIOACTIVITY=[]
-#DATA=horzcat(features(:,1),data); 
-#writetable(DATA,"TOP_10000_FEATURES.xlsx")
+train = biopsy[inTrain, ]
+test = biopsy[-inTrain, ]
+X_train = train[,-10]
+y_train = train[,10]
+# Setting the cross validation parameters
+control <- rfeControl(functions = rfFuncs,
+                         method = "repeatedcv",
+                         repeats = 5,
+                         number = 10,
+                         verbose = FALSE)
 
+#putting these on a table
+#feature_table <- data.frame()
+subsets<-c(1:8)
+result_rfe = rfe(x = X_train, 
+                 y = y_train, 
+                 sizes = subsets,
+                 rfeControl = control)
+
+print(result_rfe)
+
+# finding variable importance
+
+V = caret::varImp(result_rfe)
+
+#wE ARE PLOTTING THE TOP 20 VARAIBLES 
+pdf("Impotant_varaibles.pdf")
+ggplot2::ggplot(V, aes(x=reorder(rownames(V),Overall), y=Overall)) +
+  geom_point( color="blue", size=4, alpha=0.6)+
+  geom_segment( aes(x=rownames(V), xend=rownames(V), y=0, yend=Overall), 
+                color='skyblue') +
+  xlab('Variable')+
+  ylab('Overall Importance')+
+  theme_light() +
+  coord_flip() 
+dev.off()
+
+library(tidyverse)
+#THIS THE DATA THAT WE WILL USE TO BUILD THE MODELS
+newData<-biopsy %>%
+  select(all_of(c("class",rownames(V))))
 #==================================================================================================================================================================
 GD_TRAIN<-read_csv("TOP_10000_FEATURES.csv")
 
@@ -178,7 +200,6 @@ inTraining <- createDataPartition(DATA$BIOACTIVITY, p = .70, list = FALSE)
 training <- features[ inTraining,]
 testing  <- features[-inTraining,]
 
-#===================================================================================================================================================================
 #TRAINING THE MODELS
 #THESE WILL BE CLASSIFICATION MODELS
 
@@ -199,11 +220,14 @@ set.seed(123)
 models<-c("knn","rf","svmRadial","gbm","xgbTree")
 results_table <- data.frame(models = models, stringsAsFactors = F)
 
+
 for (i in models){
   model_train <- train(class~., data = training, method = i,
-                     trControl= control, metric = "Accuracy")
+                       trControl= control, metric = "Accuracy")
   assign("fit", model_train)
   predictions <- predict(model_train, newdata = testing)
+  table_mat<-table(testing$BIOACTIVITY, predictions)
+  accuracy<-sum(diag(table_mat))/sum(table_mat)
   precision_ <-posPredValue(predictions, testing$BIOACTIVITY)
   recall_ <- sensitivity(predictions, testing$BIOACTIVITY)
   f1 <- (2*precision_ * recall_) / (precision_ + recall_)
@@ -212,6 +236,10 @@ for (i in models){
   results_table[results_table$models %in% i, "Precision"] <- precision_
   results_table[results_table$models %in% i, "Recall"] <- recall_
   results_table[results_table$models %in% i, "F1score"] <- f1
-  }
+  results_table[results_table$models %in% i, "Accuracy"] <- accuracy
+ 
+}
+
+
   
 
